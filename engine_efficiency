@@ -1,0 +1,37 @@
+// Speeduino Custom Fuel Efficiency Patch for Chevy 350 V8
+// Goal: Lean out fuel mixture at higher RPMs under light load for improved fuel economy
+
+#include "engine.h" // Core Speeduino engine data
+
+// Function to blend AFR targets for smoother transition
+double blendAFR(double baseAFR, double targetAFR, double factor) {
+    return (baseAFR * (1.0 - factor)) + (targetAFR * factor);
+}
+
+void updateAFRTarget() {
+    // Check engine conditions
+    if (engineData.rpm > 3000 && engineData.map < 60) {
+        // Lean cruise condition detected
+        double leanAFRtarget = 16.0; // Slightly leaner than stoichiometric
+        afrTarget = blendAFR(afrTarget, leanAFRtarget, 0.3); // Blend current with lean target
+    }
+    else {
+        // Normal AFR target logic (unchanged)
+    }
+}
+
+// Hook into main fuel loop or AFR target update
+void loop() {
+    // Usual Speeduino logic here...
+
+    updateAFRTarget();
+
+    // Continue with fuel calculations, injector pulse, etc...
+}
+
+// Notes:
+// - Ensure wideband O2 feedback is enabled
+// - Tune VE table alongside this logic for best results
+// - Monitor knock, EGT, and AFRs during testing
+
+
